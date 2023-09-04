@@ -3,9 +3,12 @@ import {State, Cell, Block} from "./types"
 import {Constants, Cube} from "./main"
 
 const checkGameEnd = (s: State): boolean => {
-  // Check for collisions with the top boundary
-  return s.currentBlock.positions.some(([_,y]) => y < 0);
+  console.log("Block Positions:", s.currentBlock.positions);
+  const gameEnded = s.currentBlock.positions.some(([_, y]) => y < 0);
+  console.log("Game Ended:", gameEnded);
+  return gameEnded;
 }
+
 
 function clearFullRows(state: State) {
     const numRows = state.gameBoard.length;

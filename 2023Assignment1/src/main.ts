@@ -240,6 +240,11 @@ export function main() {
   preview.setAttribute("height", `${Viewport.PREVIEW_HEIGHT}`);
   preview.setAttribute("width", `${Viewport.PREVIEW_WIDTH}`);
 
+  // Append elements to the DOM
+  document.body.appendChild(svg);
+  document.body.appendChild(preview);
+  document.body.appendChild(gameover);
+
   // Text fields
   const levelText = document.querySelector("#levelText") as HTMLElement;
   const scoreText = document.querySelector("#scoreText") as HTMLElement;
@@ -310,7 +315,8 @@ export function main() {
       svg.appendChild(placedBlocksGroup);
     };
 
-  const source$ = merge(tick$, left$, right$, down$, rotate$)  .pipe(
+  const source$ = merge(tick$, left$, right$, down$, rotate$)
+  .pipe(
     // scan((s: State) => ({ ...s, gameEnd: false }), initialState),
     scan((s: State, act: Action) => reduceState(s,act), initialState),
   )
