@@ -23,16 +23,22 @@ function clearFullRows(state: State) {
   
     // Calculate how many rows were removed
     const rowsRemoved = numRows - newGameBoard.length;
-  
+
+    const newPoints = 100 * rowsRemoved
+     // Use functional programming to compute newHighScore and newScore
+     const { highscore, score } = state;
+     const newHighScore = Math.max(highscore, score + newPoints);
+     const newScore = score + newPoints;
     // Create empty rows to add at the top
     const emptyRowsToAdd = new Array(rowsRemoved).fill(
       new Array(Constants.GRID_WIDTH).fill({ placed: false, colour: "" })
     );
-  
+
     // Concatenate the empty rows at the top
     const finalGameBoard = emptyRowsToAdd.concat(newGameBoard);
-  
-    return { ...state, gameBoard: finalGameBoard };
+
+
+    return { ...state, highscore: newHighScore, score: newScore, gameBoard: finalGameBoard };
   }
   
   const updateGameBoardWithBlock = (gameBoard: Cell[][], block: Block): Cell[][] => {
@@ -67,8 +73,7 @@ function clearFullRows(state: State) {
       if (gridY >= 0  && gridY < Constants.GRID_HEIGHT && gridX >= 0 && gridX < Constants.GRID_WIDTH) {
         return gameBoard[gridY][gridX].placed;
       }
-
-      //return false;
+      return false;
     });
   
     return collidesWithPlacedBlocks ||  collidesWithBottom;

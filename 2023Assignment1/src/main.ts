@@ -196,10 +196,13 @@ const tick = (s: State) => s;
  * Displays a SVG element on the canvas. Brings to foreground.
  * @param elem SVG element to display
  */
-const show = (elem: SVGGraphicsElement) => {
+
+const show = (elem: SVGGraphicsElement, svg: SVGGraphicsElement) => {
   elem.setAttribute("visibility", "visible");
-  elem.parentNode!.appendChild(elem);
+  svg.appendChild(elem);
+  
 };
+
 
 /**
  * Hides a SVG element on the canvas.
@@ -239,11 +242,6 @@ export function main() {
   svg.setAttribute("width", `${Viewport.CANVAS_WIDTH}`);
   preview.setAttribute("height", `${Viewport.PREVIEW_HEIGHT}`);
   preview.setAttribute("width", `${Viewport.PREVIEW_WIDTH}`);
-
-  // Append elements to the DOM
-  document.body.appendChild(svg);
-  document.body.appendChild(preview);
-  document.body.appendChild(gameover);
 
   // Text fields
   const levelText = document.querySelector("#levelText") as HTMLElement;
@@ -313,7 +311,14 @@ export function main() {
         });
       });
       svg.appendChild(placedBlocksGroup);
+      
+      // Render score
+      scoreText.innerHTML = String(s.score)
+      highScoreText.innerHTML = String(s.highscore)
+
     };
+
+
 
   const source$ = merge(tick$, left$, right$, down$, rotate$)
   .pipe(
@@ -323,9 +328,9 @@ export function main() {
   .subscribe((s: State) => {
     render(s);
     if (s.gameEnd) {
-      show(gameover);
+      show(gameover, svg)
     } else {
-      hide(gameover);
+      hide(gameover)
     }
   });
 }

@@ -10,14 +10,10 @@ class Move implements Action {
     const currentTetrimino = s.currentBlock;
 
     //Update positions
-    const newBlockPositions = currentTetrimino.positions.map(
-      ([x, y]) => [x + this.pos.x, y +this.pos.y]      
-    );
-
+    const newBlockPositions = currentTetrimino.positions.map(([x, y]) => [x + this.pos.x, y +this.pos.y]);
+    
     // Update the pivot point as well
-    const newPivot = [
-      currentTetrimino.pivot[0] + this.pos.x,
-      currentTetrimino.pivot[1] + this.pos.y]
+    const newPivot = [currentTetrimino.pivot[0] + this.pos.x, currentTetrimino.pivot[1] + this.pos.y]
 
     const collidesWithVerticalBlocks = collidesWithVertical(s.gameBoard, newBlockPositions);
     const collidesWithLateralWalls = collidesWithLateral(newBlockPositions);
@@ -61,9 +57,9 @@ class Tick implements Action {
     // Check for collisions with the bottom or vertical blocks
     if (collidesWithVertical(s.gameBoard, newBlockPositions)) {
       
-      if (checkGameEnd(s)){return {...s, gameEnd: true}}
       const updatedGameBoard = updateGameBoardWithBlock(s.gameBoard, currentTetrimino);
-
+      if (checkGameEnd(s)){
+        return {...s, gameEnd: true}}
       // Call clearFullRows here to remove and replace any full rows
       const newState = clearFullRows({...s,gameBoard: updatedGameBoard,});
       const newRandomBlock = spawnBlock(chooseRandomBlock());
