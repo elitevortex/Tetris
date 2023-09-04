@@ -1,6 +1,6 @@
 import {State, Action, Block, Cell} from "./types"
 import {Key,Constants, Cube, spawnBlock, chooseRandomBlock,} from "./main"
-import {rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical} from "./util"
+import {checkGameEnd, rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical} from "./util"
 export {Move,Tick, Rotate, reduceState}
 
 
@@ -51,42 +51,24 @@ class Tick implements Action {
   apply = (s: State): State => {
     const currentTetrimino = s.currentBlock;
 
-    const newBlockPositions = currentTetrimino.positions.map(
-      ([x, y]) => [x, y + Cube.HEIGHT]
-    );
+    const newBlockPositions = currentTetrimino.positions.map(([x, y]) => [x, y + Cube.HEIGHT]);
     
     // Update the pivot point
-    const newPivot = [
-      currentTetrimino.pivot[0],
-      currentTetrimino.pivot[1] + Cube.HEIGHT,
-    ];
+    const newPivot = [currentTetrimino.pivot[0],currentTetrimino.pivot[1] + Cube.HEIGHT,];
 
-    const collidesWithBottom = newBlockPositions.some(
-      ([, y]) => y >= Constants.GRID_HEIGHT * Cube.HEIGHT
-    );
-  
-    // Check for collisions with the top boundary// TOOOODOOOO
-  const collidesWithTop = s.gameBoard.some((x,y) => y < 0);
-
-    if (collidesWithTop) {
-      return {
-        ...s,
-        gameEnd: true, // Set the gameEnd flag to true
-      };
-    }
+    const collidesWithBottom = newBlockPositions.some(([, y]) => y >= Constants.GRID_HEIGHT * Cube.HEIGHT);
+    
     // Check for collisions with the bottom or vertical blocks
     if (collidesWithVertical(s.gameBoard, newBlockPositions)) {
+      
+      if (checkGameEnd(s)){return {...s, gameEnd: true}}
       const updatedGameBoard = updateGameBoardWithBlock(s.gameBoard, currentTetrimino);
 
       // Call clearFullRows here to remove and replace any full rows
       const newState = clearFullRows({...s,gameBoard: updatedGameBoard,});
       const newRandomBlock = spawnBlock(chooseRandomBlock());
     
-      return {
-        ...newState,
-        currentBlock: newRandomBlock,
-        };
-    } 
+      return {...newState, currentBlock: newRandomBlock,}}; 
 
     return {
       ...s,

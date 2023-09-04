@@ -1,6 +1,12 @@
-export {rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical}
+export {checkGameEnd, rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical}
 import {State, Cell, Block} from "./types"
 import {Constants, Cube} from "./main"
+
+const checkGameEnd = (s: State): boolean => {
+  // Check for collisions with the top boundary
+  return s.currentBlock.positions.some(([_,y]) => y < 0);
+}
+
 function clearFullRows(state: State) {
     const numRows = state.gameBoard.length;
   
@@ -45,6 +51,7 @@ function clearFullRows(state: State) {
   
   
   const collidesWithVertical = (gameBoard: Cell[][], newBlockPositions: number[][]): boolean => {
+
     // Check collisions with bottom
     const collidesWithBottom = newBlockPositions.some(([x, y]) => y >= Constants.GRID_HEIGHT * Cube.HEIGHT);
   
@@ -54,14 +61,14 @@ function clearFullRows(state: State) {
       const gridY = Math.floor(y / Cube.HEIGHT );
   
       // Check if the bottom of the current block is at the top of a placed block
-      if (gridY >= 0 && gridY < Constants.GRID_HEIGHT && gridX >= 0 && gridX < Constants.GRID_WIDTH) {
+      if (gridY >= 0  && gridY < Constants.GRID_HEIGHT && gridX >= 0 && gridX < Constants.GRID_WIDTH) {
         return gameBoard[gridY][gridX].placed;
       }
-  
-      return false;
+
+      //return false;
     });
   
-    return collidesWithBottom || collidesWithPlacedBlocks;
+    return collidesWithPlacedBlocks ||  collidesWithBottom;
   };
   
   const collidesWithLateral = (newBlockPositions: number[][]): boolean => {

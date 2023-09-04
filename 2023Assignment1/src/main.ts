@@ -17,9 +17,12 @@ import "./style.css";
 import {Move,reduceState, Rotate, Tick} from "./state";
 export type {Key}
 
-import { fromEvent, interval, merge } from "rxjs";
-import { map, filter, scan } from "rxjs/operators";
+import { fromEvent, interval, merge , zip} from "rxjs";
+import { map, filter, scan, tap, take } from "rxjs/operators";
 import { reduce } from "../node_modules/rxjs/dist/types/index";
+
+import type { Observable } from "rxjs";
+
 
 /** Constants */
 
@@ -41,8 +44,40 @@ const Cube = {
   HEIGHT: Viewport.CANVAS_HEIGHT / Constants.GRID_HEIGHT,
 };
 
+abstract class RNG {
+  // LCG using GCC's constants
+  private static m = 0x80000000; // 2**31
+  private static a = 1103515245;
+  private static c = 12345;
 
+  /**
+   * Call `hash` repeatedly to generate the sequence of hashes.
+   * @param seed
+   * @returns a hash of the seed
+   */
+  public static hash = (seed: number) => (RNG.a * seed + RNG.c) % RNG.m;
 
+  /**
+   * Takes hash value and scales it to the range [-1, 1]
+   */
+  public static scale = (hash: number) => (2 * hash) / (RNG.m - 1) - 1;
+}
+/**
+ * Converts a source Observable to a single random number in the range [-1, 1]
+ *
+ * @param source$ The source Observable, elements of this are replaced with a single random number
+ * @param seed The seed for the random number generator
+ */
+ export function createSingleRandomNumberFromSource<T>(
+  source$: Observable<T>,
+  seed: number = 0
+): Observable<number> {
+  return source$.pipe(
+    scan((currentSeed: number) => RNG.hash(currentSeed), seed),
+    map((hashValue: number) => RNG.scale(hashValue)),
+    take(1) // Emit only one random number and complete
+  );
+}
 /** User input */
 
 type Key = "ArrowLeft" | "ArrowRight" | "ArrowDown" | "ArrowUp";
@@ -89,7 +124,7 @@ const chooseRandomBlock = () => {
 // Function to spawn a block at the top-middle of the screen
 const spawnBlock = (block: Block) => {
   const initialX = (Constants.GRID_WIDTH / 2 -1) * Cube.WIDTH; // Middle column
-  const initialY = 0; // Top of the screen
+  const initialY =  2*-Cube.HEIGHT; // Top of the screen
 
    // Update the pivot point
    const newPivot = [
