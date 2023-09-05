@@ -22,6 +22,7 @@ import { map, filter, scan, tap, take } from "rxjs/operators";
 import { reduce } from "../node_modules/rxjs/dist/types/index";
 
 import type { Observable } from "rxjs";
+import { Action } from "../node_modules/rxjs/dist/types/internal/scheduler/Action";
 
 
 /** Constants */
@@ -171,18 +172,17 @@ const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => 
   
 };
 
-const emptyBoard: Cell[][] = new Array(Constants.GRID_HEIGHT)
+/** State processing */
+const initialState: State  = {
+  gameBoard: new Array(Constants.GRID_HEIGHT)
   .fill(null)
-  .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''}))
-  /** State processing */
-  const initialState: State  = {
-    gameBoard: emptyBoard,
-    currentBlock: spawnBlock(blockShapes[1]),// Use the first block as a fallback
-    level: 0,
-    score: 0,
-    highscore: 0,
-    gameEnd: false
-  } as const;
+  .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''})),
+  currentBlock: spawnBlock(blockShapes[1]),// Use the first block as a fallback
+  level: 0,
+  score: 0,
+  highscore: 0,
+  gameEnd: false
+} as const;
 
 /**
  * Updates the state by proceeding with one time step.
@@ -321,14 +321,15 @@ export function main() {
 
     };
 
+    console.log("INItial", initialState)
   const source$ = merge(tick$, left$, right$, down$, rotate$, restart$)
   .pipe(
-    // scan((s: State) => ({ ...s, gameEnd: false }), initialState),
     scan((s: State, act: Action) => reduceState(s,act), initialState),
   )
   .subscribe((s: State) => {
     render(s);
     console.log(s.gameEnd)
+    console.log(s.gameBoard)
     if (s.gameEnd) {
       show(gameover, svg);
     } else {

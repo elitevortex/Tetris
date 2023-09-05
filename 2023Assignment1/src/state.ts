@@ -45,6 +45,7 @@ class Move implements Action {
 
 class Tick implements Action {
   apply = (s: State): State => {
+    console.log("tick", s.gameBoard, s.score);
     const currentTetrimino = s.currentBlock;
 
     const newBlockPositions = currentTetrimino.positions.map(([x, y]) => [x, y + Cube.HEIGHT]);
@@ -56,6 +57,7 @@ class Tick implements Action {
     
     // Check for collisions with the bottom or vertical blocks
     if (collidesWithVertical(s.gameBoard, newBlockPositions)) {
+
       
       const updatedGameBoard = updateGameBoardWithBlock(s.gameBoard, currentTetrimino);
       
@@ -107,7 +109,10 @@ class Restart implements Action{
     return s.gameEnd
     ? { 
       ...initialState,
-      gameBoard: emptyBoard,
+      gameBoard: new Array(Constants.GRID_HEIGHT)
+      .fill(null)
+      .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''}))
+    ,
       currentBlock: spawnBlock(chooseRandomBlock()),// Use the first block as a fallback
       level: 0,
       score: 0,
@@ -127,5 +132,6 @@ class Restart implements Action{
      * @param action type of action to apply to the State
      * @returns a new State 
      */
- const reduceState = (s: State, action: Action) => action.apply(s);
-
+ const reduceState = (s: State, action: Action): State => {
+  return s.gameEnd && !(action instanceof Restart) ? s : action.apply(s)
+};

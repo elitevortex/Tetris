@@ -48,6 +48,7 @@ function clearFullRows(state: State) {
   
   const updateGameBoardWithBlock = (gameBoard: Cell[][], block: Block): Cell[][] => {
     const updatedGameBoard = [...gameBoard];
+    
   
     block.positions.forEach(([x, y]) => {
       const gridX = Math.floor(x / Cube.WIDTH);
