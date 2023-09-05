@@ -1,5 +1,5 @@
 import {State, Action, Block, Cell} from "./types"
-import {blockShapes ,Constants, Cube, spawnBlock, chooseRandomBlock,emptyBoard, initialState} from "./main"
+import {blockShapes ,Constants, Cube, spawnBlock, chooseRandomBlock, initialState} from "./main"
 import {checkGameEnd, rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical} from "./util"
 export {Move,Tick, Rotate, Restart, reduceState}
 
@@ -54,11 +54,16 @@ class Tick implements Action {
     const newPivot = [currentTetrimino.pivot[0],currentTetrimino.pivot[1] + Cube.HEIGHT,];
 
     const collidesWithBottom = newBlockPositions.some(([, y]) => y >= Constants.GRID_HEIGHT * Cube.HEIGHT);
-    
+     
+
     // Check for collisions with the bottom or vertical blocks
     if (collidesWithVertical(s.gameBoard, newBlockPositions)) {
-
+        // Update the preview block with a new random block
+      const prevBlock = spawnBlock(chooseRandomBlock());
+      const newPreviewBlock = {...prevBlock, isPreview: true};
       
+      // Reset preview to not preview
+      const newCurrBlock = {...s.previewBlock, isPreview: false}
       const updatedGameBoard = updateGameBoardWithBlock(s.gameBoard, currentTetrimino);
       
       if (checkGameEnd(s)){
@@ -66,9 +71,11 @@ class Tick implements Action {
       
         // Call clearFullRows here to remove and replace any full rows
       const newState = clearFullRows({...s,gameBoard: updatedGameBoard,});
-      const newRandomBlock = spawnBlock(chooseRandomBlock());
     
-      return {...newState, currentBlock: newRandomBlock}}; 
+      return {
+        ...newState, 
+        currentBlock: newCurrBlock, 
+        previewBlock: newPreviewBlock}}; 
 
     return {
       ...s,
@@ -111,13 +118,8 @@ class Restart implements Action{
       ...initialState,
       gameBoard: new Array(Constants.GRID_HEIGHT)
       .fill(null)
-      .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''}))
-    ,
-      currentBlock: spawnBlock(chooseRandomBlock()),// Use the first block as a fallback
-      level: 0,
-      score: 0,
+      .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''})),
       highscore: s.highscore,
-      gameEnd: false
     }
     : s
   }

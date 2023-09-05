@@ -6,7 +6,8 @@ type State = Readonly<{
     level: number,
     score: number,
     highscore: number,
-    gameEnd: boolean
+    gameEnd: boolean,
+    previewBlock: Block
   }>
 
 type Block = Readonly<  ObjectId &{
@@ -14,8 +15,7 @@ type Block = Readonly<  ObjectId &{
     pivot: number[]
     colour:  string,
     currMaxWidth: number,
-    currMaxHeight: number;
-    
+    currMaxHeight: number
 }>
 
 type Cell = Readonly<{

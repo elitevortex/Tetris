@@ -11,7 +11,7 @@
  *
  * Document your code!
  */
-export { emptyBoard, initialState ,Cube, Viewport, Constants, spawnBlock, chooseRandomBlock};
+export {initialState ,Cube, Viewport, Constants, spawnBlock, chooseRandomBlock};
 import  {State, Block, Action, Cell} from "./types";
 import "./style.css";
 import {Restart, Move,reduceState, Rotate, Tick} from "./state";
@@ -22,7 +22,6 @@ import { map, filter, scan, tap, take } from "rxjs/operators";
 import { reduce } from "../node_modules/rxjs/dist/types/index";
 
 import type { Observable } from "rxjs";
-import { Action } from "../node_modules/rxjs/dist/types/internal/scheduler/Action";
 
 
 /** Constants */
@@ -103,17 +102,17 @@ export const blockShapes: Block[] = [
   // I-shape
   { id: "i", pivot: [2, Cube.HEIGHT * 4 / 2], positions: [[0, 0], [0, Cube.HEIGHT], [0, Cube.HEIGHT * 2], [0, Cube.HEIGHT * 3]], colour: "red", currMaxHeight: 1, currMaxWidth: 4, },
   // J-shap
-  { id: "j", pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "blue",currMaxHeight: 2, currMaxWidth: 3, },
-  // L-shape
-  { id: "l", pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "green",currMaxHeight:2 , currMaxWidth: 3 },
-  // O-shape
-  { id: "o", pivot: [Cube.WIDTH/2, Cube.HEIGHT/2], positions: [[0, 0], [Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "purple" , currMaxHeight: 2, currMaxWidth: 2},
-  // S-shape
-  { id: "s", pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH, 0], [Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "orange", currMaxHeight: 2, currMaxWidth: 3, },
-  // T-shape
-  { id: "t", pivot: [Cube.WIDTH, Cube.HEIGHT],  positions: [[Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "cyan", currMaxHeight: 1, currMaxWidth: 4, },
-  // Z-shape
-  { id: "z", pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [Cube.WIDTH, 0], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "yellow", currMaxHeight: 2, currMaxWidth: 5 },
+  { id: "j",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "blue",currMaxHeight: 2, currMaxWidth: 3, },
+  // L-shape 
+  { id: "l",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "green",currMaxHeight:2 , currMaxWidth: 3 },
+  // O-shape i
+  { id: "o",  pivot: [Cube.WIDTH/2, Cube.HEIGHT/2], positions: [[0, 0], [Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "purple" , currMaxHeight: 2, currMaxWidth: 2},
+  // S-shape 
+  { id: "s",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH, 0], [Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "orange", currMaxHeight: 2, currMaxWidth: 3, },
+  // T-shape 
+  { id: "t",  pivot: [Cube.WIDTH, Cube.HEIGHT],  positions: [[Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "cyan", currMaxHeight: 1, currMaxWidth: 4, },
+  // Z-shape  
+  { id: "z",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [Cube.WIDTH, 0], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "yellow", currMaxHeight: 2, currMaxWidth: 5 },
 ];
 
 /** Utility functions */
@@ -145,7 +144,8 @@ const spawnBlock = (block: Block) => {
 };
 
 /** Create new block (tetromino) */
-const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => {
+const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string, options: { yOffset?: number } = {}) => {
+  
   // Remove the previous rendering of the block if it exists
   const previousGroup = document.getElementById(groupId);
   if (previousGroup) {
@@ -153,6 +153,7 @@ const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => 
   }
 
   function createBlockView() {
+
     const group = createSvgElement(svg.namespaceURI, "g");
 
     block.positions.forEach((pos) => {
@@ -160,7 +161,7 @@ const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => 
         height: `${Cube.HEIGHT}`,
         width: `${Cube.WIDTH}`,
         x: String(pos[0]),
-        y: String(pos[1]),
+        y: String(pos[1] + (options.yOffset || 0)), // Adjust the y-coordinate here
         style: `fill: ${block.colour}`,
       });
       group.appendChild(cube);
@@ -169,15 +170,17 @@ const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => 
     return group; // Return the created group
   }
   const newBlock = document.getElementById(block.id) || createBlockView();
-  
+
 };
+
 
 /** State processing */
 const initialState: State  = {
   gameBoard: new Array(Constants.GRID_HEIGHT)
   .fill(null)
   .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''})),
-  currentBlock: spawnBlock(blockShapes[1]),// Use the first block as a fallback
+  currentBlock: spawnBlock(chooseRandomBlock()),
+  previewBlock: spawnBlock(chooseRandomBlock()),  
   level: 0,
   score: 0,
   highscore: 0,
@@ -253,7 +256,6 @@ export function main() {
 
   
   /** User input */
-
   const key$ = fromEvent<KeyboardEvent>(document, "keydown");
 
   const fromKey = (keyCode: Key) =>
@@ -262,7 +264,6 @@ export function main() {
     const left$ = fromKey("ArrowLeft").pipe(map(_ => new Move({x: -Cube.WIDTH, y: 0})));
     const right$ = fromKey("ArrowRight").pipe(map(_ => new Move({x: Cube.WIDTH, y: 0})));
     const down$ = fromKey("ArrowDown").pipe(map(_ => new Move({x: 0, y: Cube.HEIGHT})));
-
 
     const rotate$ = fromKey("ArrowUp").pipe(map(_ => new Rotate()));
 
@@ -274,29 +275,18 @@ export function main() {
 
   // Inside your main function
   const blockGroup = createBlock(initialState.currentBlock, svg, 't');
-  /**
-   * Renders the current state to the canvas.
-   *
-   * In MVC terms, this updates the View using the Model.
-   *
-   * @param s Current state
-   */
-    // Add a block to the preview canvas
-    // const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
-    //   height: `${Cube.HEIGHT}`,
-    //   width: `${Cube.WIDTH}`,
-    //   x: `${Cube.WIDTH * 2}`,
-    //   y: `${Cube.HEIGHT}`,
-    //   style: "fill: green",
-    // });
-    // preview.appendChild(cubePreview);
     const render = (s: State) => {
       // Clear the previous rendering of the current block and placed blocks
       svg.innerHTML = ""
-    
       // Render the new position of the current block
       createBlock(s.currentBlock, svg, s.currentBlock.id);
-    
+      
+      // Clear the previous rendering of the preview block
+      preview.innerHTML = "";
+      createBlock(s.previewBlock, preview, 'preview',  { yOffset: 60 });
+
+
+
       // Render the placed blocks on the game board
       const placedBlocksGroup = createSvgElement(svg.namespaceURI, "g", { id: "placed-blocks" });
       s.gameBoard.forEach((row, y) => {
@@ -321,15 +311,12 @@ export function main() {
 
     };
 
-    console.log("INItial", initialState)
   const source$ = merge(tick$, left$, right$, down$, rotate$, restart$)
   .pipe(
     scan((s: State, act: Action) => reduceState(s,act), initialState),
   )
   .subscribe((s: State) => {
     render(s);
-    console.log(s.gameEnd)
-    console.log(s.gameBoard)
     if (s.gameEnd) {
       show(gameover, svg);
     } else {

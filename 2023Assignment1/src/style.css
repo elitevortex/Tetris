@@ -72,6 +72,7 @@ svg rect {
 
 #svgPreview {
   background-color: rgb(218, 180, 131);
+  height: 125px; 
 }
 
 #info {
@@ -98,3 +99,4 @@ svg rect {
   font-weight: bolder;
   text-align: center;
 }
+
