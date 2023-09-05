@@ -1,7 +1,7 @@
 import {State, Action, Block, Cell} from "./types"
-import {Key,Constants, Cube, spawnBlock, chooseRandomBlock,} from "./main"
+import {blockShapes ,Constants, Cube, spawnBlock, chooseRandomBlock,emptyBoard, initialState} from "./main"
 import {checkGameEnd, rotateCord, clearFullRows, updateGameBoardWithBlock, collidesWithLateral, collidesWithVertical} from "./util"
-export {Move,Tick, Rotate, reduceState}
+export {Move,Tick, Rotate, Restart, reduceState}
 
 
 class Move implements Action {
@@ -58,13 +58,15 @@ class Tick implements Action {
     if (collidesWithVertical(s.gameBoard, newBlockPositions)) {
       
       const updatedGameBoard = updateGameBoardWithBlock(s.gameBoard, currentTetrimino);
+      
       if (checkGameEnd(s)){
         return {...s, gameEnd: true}}
-      // Call clearFullRows here to remove and replace any full rows
+      
+        // Call clearFullRows here to remove and replace any full rows
       const newState = clearFullRows({...s,gameBoard: updatedGameBoard,});
       const newRandomBlock = spawnBlock(chooseRandomBlock());
     
-      return {...newState, currentBlock: newRandomBlock,}}; 
+      return {...newState, currentBlock: newRandomBlock}}; 
 
     return {
       ...s,
@@ -98,6 +100,22 @@ class Rotate implements Action{
       currentBlock: rotatedBlock,
     };
   };
+}
+
+class Restart implements Action{
+  apply = (s: State): State => {
+    return s.gameEnd
+    ? { 
+      ...initialState,
+      gameBoard: emptyBoard,
+      currentBlock: spawnBlock(chooseRandomBlock()),// Use the first block as a fallback
+      level: 0,
+      score: 0,
+      highscore: s.highscore,
+      gameEnd: false
+    }
+    : s
+  }
 }
 
 

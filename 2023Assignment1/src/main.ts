@@ -11,10 +11,10 @@
  *
  * Document your code!
  */
-export { initialState ,Cube, Viewport, Constants, spawnBlock, chooseRandomBlock};
+export { emptyBoard, initialState ,Cube, Viewport, Constants, spawnBlock, chooseRandomBlock};
 import  {State, Block, Action, Cell} from "./types";
 import "./style.css";
-import {Move,reduceState, Rotate, Tick} from "./state";
+import {Restart, Move,reduceState, Rotate, Tick} from "./state";
 export type {Key}
 
 import { fromEvent, interval, merge , zip} from "rxjs";
@@ -43,6 +43,8 @@ const Cube = {
   WIDTH: Viewport.CANVAS_WIDTH / Constants.GRID_WIDTH,
   HEIGHT: Viewport.CANVAS_HEIGHT / Constants.GRID_HEIGHT,
 };
+
+
 
 abstract class RNG {
   // LCG using GCC's constants
@@ -80,7 +82,7 @@ abstract class RNG {
 }
 /** User input */
 
-type Key = "ArrowLeft" | "ArrowRight" | "ArrowDown" | "ArrowUp";
+type Key = "ArrowLeft" | "ArrowRight" | "ArrowDown" | "ArrowUp" | "KeyR";
 
 type Event = "keydown" | "keyup" | "keypress";
 
@@ -96,7 +98,7 @@ const createSvgElement = (
 };
 
 /** All block shapes - used chatgpt to produce shapes based on index in array*/
-const blockShapes: Block[] = [
+export const blockShapes: Block[] = [
   // I-shape
   { id: "i", pivot: [2, Cube.HEIGHT * 4 / 2], positions: [[0, 0], [0, Cube.HEIGHT], [0, Cube.HEIGHT * 2], [0, Cube.HEIGHT * 3]], colour: "red", currMaxHeight: 1, currMaxWidth: 4, },
   // J-shap
@@ -170,17 +172,17 @@ const createBlock = (block: Block, svg: SVGGraphicsElement, groupId: string) => 
 };
 
 const emptyBoard: Cell[][] = new Array(Constants.GRID_HEIGHT)
-.fill(null)
-.map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''}))
-/** State processing */
-const initialState: State  = {
-  gameBoard: emptyBoard,
-  currentBlock: spawnBlock(blockShapes[1]),// Use the first block as a fallback
-  level: 0,
-  score: 0,
-  highscore: 0,
-  gameEnd: false
-} as const;
+  .fill(null)
+  .map(() => new Array(Constants.GRID_WIDTH).fill({placed: false, colour: ''}))
+  /** State processing */
+  const initialState: State  = {
+    gameBoard: emptyBoard,
+    currentBlock: spawnBlock(blockShapes[1]),// Use the first block as a fallback
+    level: 0,
+    score: 0,
+    highscore: 0,
+    gameEnd: false
+  } as const;
 
 /**
  * Updates the state by proceeding with one time step.
@@ -202,7 +204,6 @@ const show = (elem: SVGGraphicsElement, svg: SVGGraphicsElement) => {
   svg.appendChild(elem);
   
 };
-
 
 /**
  * Hides a SVG element on the canvas.
@@ -229,6 +230,7 @@ const hide = (elem: SVGGraphicsElement) =>
  */
 export function main() {
   
+  
   // Canvas elements
   const svg = document.querySelector("#svgCanvas") as SVGGraphicsElement &
     HTMLElement;
@@ -247,7 +249,9 @@ export function main() {
   const levelText = document.querySelector("#levelText") as HTMLElement;
   const scoreText = document.querySelector("#scoreText") as HTMLElement;
   const highScoreText = document.querySelector("#highScoreText") as HTMLElement;
+  const restartText = document.querySelector("#restartText") as HTMLElement;
 
+  
   /** User input */
 
   const key$ = fromEvent<KeyboardEvent>(document, "keydown");
@@ -262,12 +266,11 @@ export function main() {
 
     const rotate$ = fromKey("ArrowUp").pipe(map(_ => new Rotate()));
 
+    const restart$ = fromKey("KeyR").pipe(map(_ => new Restart()));
+
     
   /** Determines the rate of time steps */
   const tick$ = interval(Constants.TICK_RATE_MS).pipe(map(_ => new Tick()));
-
-  
-
 
   // Inside your main function
   const blockGroup = createBlock(initialState.currentBlock, svg, 't');
@@ -318,19 +321,18 @@ export function main() {
 
     };
 
-
-
-  const source$ = merge(tick$, left$, right$, down$, rotate$)
+  const source$ = merge(tick$, left$, right$, down$, rotate$, restart$)
   .pipe(
     // scan((s: State) => ({ ...s, gameEnd: false }), initialState),
     scan((s: State, act: Action) => reduceState(s,act), initialState),
   )
   .subscribe((s: State) => {
     render(s);
+    console.log(s.gameEnd)
     if (s.gameEnd) {
-      show(gameover, svg)
+      show(gameover, svg);
     } else {
-      hide(gameover)
+      hide(gameover);
     }
   });
 }

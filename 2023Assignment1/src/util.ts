@@ -3,11 +3,16 @@ import {State, Cell, Block} from "./types"
 import {Constants, Cube} from "./main"
 
 const checkGameEnd = (s: State): boolean => {
-  console.log("Block Positions:", s.currentBlock.positions);
-  const gameEnded = s.currentBlock.positions.some(([_, y]) => y < 0);
-  console.log("Game Ended:", gameEnded);
-  return gameEnded;
+  if (!s.gameEnd){
+    const gameEnded = s.currentBlock.positions.some(([_, y]) => y < 0);
+    console.log("Game Ended:", gameEnded);
+    return gameEnded;
+  } 
+  else{
+    return true
+  }
 }
+  
 
 
 function clearFullRows(state: State) {
