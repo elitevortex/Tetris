@@ -100,19 +100,19 @@ const createSvgElement = (
 /** All block shapes - used chatgpt to produce shapes based on index in array*/
 export const blockShapes: Block[] = [
   // I-shape
-  { id: "i", pivot: [2, Cube.HEIGHT * 4 / 2], positions: [[0, 0], [0, Cube.HEIGHT], [0, Cube.HEIGHT * 2], [0, Cube.HEIGHT * 3]], colour: "red", currMaxHeight: 1, currMaxWidth: 4, },
+  { id: "i", rotationIndex: 0 ,pivot: [2, Cube.HEIGHT * 4 / 2], positions: [[0, 0], [0, Cube.HEIGHT], [0, Cube.HEIGHT * 2], [0, Cube.HEIGHT * 3]], colour: "red", currMaxHeight: 1, currMaxWidth: 4, },
   // J-shap
-  { id: "j",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "blue",currMaxHeight: 2, currMaxWidth: 3, },
+  { id: "j",  rotationIndex: 0,pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "blue",currMaxHeight: 2, currMaxWidth: 3, },
   // L-shape 
-  { id: "l",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "green",currMaxHeight:2 , currMaxWidth: 3 },
+  { id: "l", rotationIndex: 0, pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "green",currMaxHeight:2 , currMaxWidth: 3 },
   // O-shape i
-  { id: "o",  pivot: [Cube.WIDTH/2, Cube.HEIGHT/2], positions: [[0, 0], [Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "purple" , currMaxHeight: 2, currMaxWidth: 2},
+  { id: "o",  rotationIndex: 0,pivot: [Cube.WIDTH/2, Cube.HEIGHT/2], positions: [[0, 0], [Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "purple" , currMaxHeight: 2, currMaxWidth: 2},
   // S-shape 
-  { id: "s",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH, 0], [Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "orange", currMaxHeight: 2, currMaxWidth: 3, },
+  { id: "s",  rotationIndex: 0,pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[Cube.WIDTH, 0], [Cube.WIDTH * 2, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT]], colour: "orange", currMaxHeight: 2, currMaxWidth: 3, },
   // T-shape 
-  { id: "t",  pivot: [Cube.WIDTH, Cube.HEIGHT],  positions: [[Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "cyan", currMaxHeight: 1, currMaxWidth: 4, },
+  { id: "t",  rotationIndex: 0,pivot: [Cube.WIDTH, Cube.HEIGHT],  positions: [[Cube.WIDTH, 0], [0, Cube.HEIGHT], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "cyan", currMaxHeight: 1, currMaxWidth: 4, },
   // Z-shape  
-  { id: "z",  pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [Cube.WIDTH, 0], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "yellow", currMaxHeight: 2, currMaxWidth: 5 },
+  { id: "z", rotationIndex: 0, pivot: [Cube.WIDTH, Cube.HEIGHT], positions: [[0, 0], [Cube.WIDTH, 0], [Cube.WIDTH, Cube.HEIGHT], [Cube.WIDTH * 2, Cube.HEIGHT]], colour: "yellow", currMaxHeight: 2, currMaxWidth: 5 },
 ];
 
 /** Utility functions */

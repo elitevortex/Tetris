@@ -74,7 +74,7 @@ class Tick implements Action {
     
       return {
         ...newState, 
-        currentBlock: newCurrBlock, 
+        currentBlock: newc, 
         previewBlock: newPreviewBlock}}; 
 
     return {

@@ -12,7 +12,8 @@ type State = Readonly<{
 
 type Block = Readonly<  ObjectId &{
     positions: number[][],
-    pivot: number[]
+    rotationIndex: 0, 
+    pivot: number[],
     colour:  string,
     currMaxWidth: number,
     currMaxHeight: number
